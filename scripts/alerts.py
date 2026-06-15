@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-import os
-import time
 import json
+import os
 import socket
 import smtplib
-from email.message import EmailMessage
-from elasticsearch import Elasticsearch
+import time
 from datetime import datetime, timedelta
+from email.message import EmailMessage
+
+from elasticsearch import Elasticsearch
 
 ES_HOST = os.environ.get('ES_HOST', 'http://localhost:9200')
 ALERT_SEVERITY = os.environ.get('ALERT_SEVERITY', 'HIGH')
@@ -20,14 +21,22 @@ SMTP_PASS = os.environ.get('SMTP_PASS', '')
 
 es = Elasticsearch([ES_HOST])
 
+
 def send_slack_alert(message):
     if not SLACK_WEBHOOK_URL:
         return
-    payload = {"text": message}
+
+    payload = {'text': message}
+
     try:
         import urllib.request
+
         data = json.dumps(payload).encode('utf-8')
-        req = urllib.request.Request(SLACK_WEBHOOK_URL, data=data, headers={"Content-Type": "application/json"})
+        req = urllib.request.Request(
+            SLACK_WEBHOOK_URL,
+            data=data,
+            headers={'Content-Type': 'application/json'},
+        )
         with urllib.request.urlopen(req, timeout=10) as resp:
             print('Slack response:', resp.status)
     except Exception as e:
@@ -48,6 +57,7 @@ def send_email_alert(message):
                 smtp.login(SMTP_USER, SMTP_PASS)
             smtp.send_message(msg)
             print('Email alert sent to', ALERT_EMAIL)
+
     except Exception as e:
         print('Email send failed:', e)
 
@@ -56,27 +66,57 @@ def check_alerts():
     now = datetime.utcnow()
     since = now - timedelta(minutes=5)
     body = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"match": {"severity": ALERT_SEVERITY}},
-                    {"range": {"@timestamp": {"gte": since.isoformat(), "lte": now.isoformat()}}}
+        'query': {
+            'bool': {
+                'must': [
+                    {'match': {'severity': ALERT_SEVERITY}},
+                    {
+                        'range': {
+                            '@timestamp': {
+                                'gte': since.isoformat(),
+                                'lte': now.isoformat(),
+                            }
+                        }
+                    },
                 ]
             }
         }
     }
+
     try:
         res = es.search(index='siem-*', body=body, size=10)
         hits = res.get('hits', {}).get('hits', [])
         if hits:
             for h in hits:
                 src = h.get('_source', {})
-                event_desc = f"ALERT: {src.get('event_type')} user={src.get('user')} src={src.get('src_ip')} dst={src.get('dst_ip')} msg={src.get('message')}"
+                event_desc = (
+                    f"ALERT: {src.get('event_type')} user={src.get('user')} "
+                    f"src={src.get('src_ip')} dst={src.get('dst_ip')} msg={src.get('message')}"
+                )
                 print(event_desc)
+
             if SLACK_WEBHOOK_URL:
-                send_slack_alert(f"{len(hits)} high severity events detected in the last 5 minutes.")
+                send_slack_alert(
+                    f"{len(hits)} high severity events detected in the last 5 minutes."
+                )
+
             if ALERT_EMAIL:
-                send_email_alert(f"{len(hits)} high severity events detected in the last 5 minutes.\n\nDetails:\n" + "\n".join([f"{h.get('_source', {}).get('event_type')} - {h.get('_source', {}).get('message')}" for h in hits]))
+                details = "\n".join(
+                    [
+                        (
+                            f"{h.get('_source', {}).get('event_type')} - "
+                            f"{h.get('_source', {}).get('message')}"
+                        )
+                        for h in hits
+                    ]
+                )
+
+                message = (
+                    f"{len(hits)} high severity events detected in the last 5 minutes.\n\n"
+                    "Details:\n"
+                    f"{details}"
+                )
+                send_email_alert(message)
     except Exception as e:
         print('Error querying ES:', e)
 

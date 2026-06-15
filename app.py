@@ -1,10 +1,11 @@
 from functools import wraps
 from datetime import timedelta
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
-from elasticsearch import Elasticsearch
-from werkzeug.security import check_password_hash, generate_password_hash
-import os
 import json
+import os
+
+from elasticsearch import Elasticsearch
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 
 ES_HOST = os.environ.get('ES_HOST', 'http://localhost:9200')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'change-me-in-production')
@@ -44,7 +45,9 @@ def save_persistent_user(username, password_hash, role='analyst'):
 def load_users():
     users = parse_users(USER_CONFIG)
     users.update(load_persistent_users())
+
     return users
+
 
 app = Flask(__name__)
 app.config.from_mapping(
@@ -60,18 +63,23 @@ es = Elasticsearch([ES_HOST], request_timeout=30)
 
 def parse_users(config):
     users = {}
+
     for entry in config.split(';'):
         if not entry.strip():
             continue
+
         parts = entry.split(':')
         if len(parts) != 3:
             continue
+
         username, password, role = parts
         users[username] = {
             'password_hash': generate_password_hash(password),
-            'role': role
+            'role': role,
         }
+
     return users
+
 
 USERS = load_users()
 
@@ -164,11 +172,18 @@ def logout():
 @login_required
 def index():
     try:
-        res = es.search(index='siem-*', body={"size": 20, "sort": [{"@timestamp": {"order": "desc"}}]})
+        res = es.search(
+            index='siem-*',
+            body={
+                'size': 20,
+                'sort': [{'@timestamp': {'order': 'desc'}}],
+            },
+        )
         hits = res.get('hits', {}).get('hits', [])
         events = [h.get('_source', {}) for h in hits]
     except Exception:
         events = []
+
     return render_template('index.html', events=events)
 
 
@@ -176,7 +191,9 @@ def index():
 @login_required
 def search():
     q = request.args.get('q')
-    body = {"query": {"query_string": {"query": q}}} if q else {"query": {"match_all": {}}}
+    body = {
+        'query': {'query_string': {'query': q}}
+    } if q else {'query': {'match_all': {}}}
     res = es.search(index='siem-*', body=body, size=50)
     return jsonify(res)
 

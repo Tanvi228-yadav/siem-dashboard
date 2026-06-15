@@ -17,13 +17,13 @@ users = ['alice', 'bob', 'carol', 'dave', 'eve']
 def gen_event():
     t = datetime.datetime.utcnow().isoformat() + 'Z'
     return {
-        "timestamp": t,
-        "event_type": random.choice(event_types),
-        "user": random.choice(users),
-        "src_ip": f"192.168.1.{random.randint(2,254)}",
-        "dst_ip": f"10.0.0.{random.randint(2,254)}",
-        "message": "Synthetic event for SIEM demo",
-        "severity": random.choice(["INFO","MEDIUM","HIGH"])
+        'timestamp': t,
+        'event_type': random.choice(event_types),
+        'user': random.choice(users),
+        'src_ip': f'192.168.1.{random.randint(2, 254)}',
+        'dst_ip': f'10.0.0.{random.randint(2, 254)}',
+        'message': 'Synthetic event for SIEM demo',
+        'severity': random.choice(['INFO', 'MEDIUM', 'HIGH']),
     }
 
 

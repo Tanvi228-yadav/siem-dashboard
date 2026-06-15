@@ -14,12 +14,18 @@ for y in range(height):
 raw = b''.join(b'\x00' + bytes(pixels[y * width * 4:(y + 1) * width * 4]) for y in range(height))
 with open(path, 'wb') as f:
     f.write(b'\x89PNG\r\n\x1a\n')
+
     def chunk(chunk_type, data):
         f.write(len(data).to_bytes(4, 'big'))
         f.write(chunk_type)
         f.write(data)
         f.write(binascii.crc32(chunk_type + data).to_bytes(4, 'big'))
-    chunk(b'IHDR', width.to_bytes(4, 'big') + height.to_bytes(4, 'big') + b'\x08\x06\x00\x00\x00')
+
+    chunk(
+        b'IHDR',
+        width.to_bytes(4, 'big') + height.to_bytes(4, 'big') + b'\x08\x06\x00\x00\x00',
+    )
     chunk(b'IDAT', zlib.compress(raw, 9))
     chunk(b'IEND', b'')
+
 print(f'created {path}')
