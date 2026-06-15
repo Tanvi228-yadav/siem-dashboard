@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SIEM Dashboard Register</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #06101c;
+        --panel: #111f39;
+        --text: #eef4ff;
+        --muted: #8aa8d1;
+        --accent: #5cc8ff;
+        --accent-strong: #0b84ff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at top left, rgba(92,200,255,0.14), transparent 28%),
+                    linear-gradient(180deg, #06101c 0%, #0c192f 100%);
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      .layout { width: min(860px, 100%); display: grid; gap: 24px; }
+      .panel {
+        padding: 38px 34px;
+        border-radius: 30px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 32px 64px rgba(0,0,0,0.2);
+      }
+      .panel h1 { margin: 0 0 12px; font-size: 2.2rem; }
+      .panel p { margin: 0 0 24px; color: var(--muted); line-height: 1.7; }
+      .field { margin-bottom: 18px; }
+      label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 0.95rem; }
+      input {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.05);
+        color: var(--text);
+        font-size: 1rem;
+      }
+      input:focus {
+        outline: none;
+        border-color: rgba(92,200,255,0.85);
+        box-shadow: 0 0 0 4px rgba(92,200,255,0.12);
+      }
+      .button {
+        width: 100%;
+        padding: 15px 18px;
+        border: none;
+        border-radius: 16px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+        color: #081426;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform .16s ease, filter .16s ease;
+      }
+      .button:hover { transform: translateY(-1px); filter: brightness(1.05); }
+      .messages { display: grid; gap: 12px; margin-bottom: 20px; }
+      .flash {
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: var(--text);
+      }
+      .flash strong { display: inline-block; margin-right: 6px; }
+      .login-footer { margin-top: 20px; color: var(--muted); font-size: 0.95rem; }
+      .login-footer a { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <section class="panel">
+      <h1>Create your account</h1>
+      <p>Register to start monitoring log events, alerts, and analytics.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="messages">
+            {% for category, message in messages %}
+              <div class="flash"><strong>{{ category.title() }}:</strong> {{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      <form method="post">
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" name="username" autofocus>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password">
+        </div>
+        <div class="field">
+          <label for="confirm_password">Confirm password</label>
+          <input id="confirm_password" name="confirm_password" type="password">
+        </div>
+        <button class="button" type="submit">Create account</button>
+      </form>
+      <div class="login-footer">
+        Already have an account? <a href="/login">Log in</a>.
+      </div>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SIEM Dashboard Login</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #06111c;
+        --panel: #121f38;
+        --panel-soft: rgba(255,255,255,0.04);
+        --text: #eef4ff;
+        --muted: #8aa7cf;
+        --accent: #5cc8ff;
+        --accent-strong: #0b82ff;
+        --success: #7ff2b8;
+        --danger: #ff7a7a;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at top left, rgba(92,200,255,0.16), transparent 28%),
+                    linear-gradient(180deg, #06111c 0%, #091a2c 100%);
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(280px, 360px) minmax(340px, 520px);
+        gap: 28px;
+        width: min(920px, 100%);
+      }
+      .brand-panel {
+        padding: 36px 32px;
+        border-radius: 30px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 18px;
+      }
+      .brand-panel h1 { margin: 0; font-size: 2.4rem; letter-spacing: -0.04em; }
+      .brand-panel p { margin: 0; color: var(--muted); line-height: 1.7; }
+      .brand-panel .pill { display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 999px; background: rgba(92,200,255,0.14); color: var(--accent); font-weight: 700; width: fit-content; }
+      .form-panel {
+        padding: 36px 34px;
+        border-radius: 30px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+      .form-panel h2 { margin: 0 0 10px; font-size: 2rem; }
+      .form-panel p { margin: 0 0 24px; color: var(--muted); line-height: 1.75; }
+      .field {
+        margin-bottom: 18px;
+      }
+      label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 0.95rem; }
+      input {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.05);
+        color: var(--text);
+        font-size: 1rem;
+      }
+      input:focus {
+        outline: none;
+        border-color: rgba(92,200,255,0.85);
+        box-shadow: 0 0 0 4px rgba(92,200,255,0.12);
+      }
+      .button {
+        width: 100%;
+        padding: 15px 18px;
+        border: none;
+        border-radius: 16px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+        color: #081426;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform .16s ease, filter .16s ease;
+      }
+      .button:hover { transform: translateY(-1px); filter: brightness(1.05); }
+      .messages {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .flash {
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: var(--text);
+      }
+      .flash strong { display: inline-block; margin-right: 6px; }
+      .login-footer {
+        margin-top: 22px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .login-footer a { color: var(--accent); }
+      @media (max-width: 860px) {
+        .layout { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="layout">
+      <section class="brand-panel">
+        <div class="pill">SIEM Demo</div>
+        <h1>Secure analytics, faster response.</h1>
+        <p>Use a modern SIEM dashboard to inspect alerts, review event history, and manage access in a clean interface.</p>
+      </section>
+      <section class="form-panel">
+        <h2>Sign in</h2>
+        <p>Enter your username and password to continue.</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="messages">
+              {% for category, message in messages %}
+                <div class="flash"><strong>{{ category.title() }}:</strong> {{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        <form method="post">
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" name="username" autofocus>
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password">
+          </div>
+          <button class="button" type="submit">Log in</button>
+        </form>
+        <div class="login-footer">
+          New here? <a href="/register">Create your account</a>.
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

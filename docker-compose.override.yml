@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  elasticsearch:
+    environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ports:
+      - "9200:9200"
+  kibana:
+    ports:
+      - "5601:5601"
+  web:
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - SIEM_USERS=${SIEM_USERS:-admin:adminpass:admin;analyst:analystpass:analyst}
+  alerter:
+    environment:
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - ALERT_EMAIL=${ALERT_EMAIL}
+      - SMTP_HOST=${SMTP_HOST:-localhost}
+      - SMTP_PORT=${SMTP_PORT:-25}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
